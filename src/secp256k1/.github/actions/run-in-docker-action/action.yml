@@ -42,13 +42,17 @@ runs:
       shell: bash
 
     - # Tell Docker to pass environment variables in `env` into the container.
+      env:
+        INPUTS_TAG: ${{ inputs.tag }}
+        INPUTS_COMMAND: ${{ inputs.command }}
+        GITHUB_WORKSPACE: ${{ github.workspace }}
       run: >
         docker run \
           $(echo '${{ toJSON(env) }}' | jq -r 'keys[] | "--env \(.) "') \
-          --volume ${{ github.workspace }}:${{ github.workspace }} \
-          --workdir ${{ github.workspace }} \
-          ${{ inputs.tag }} bash -c "
-            git config --global --add safe.directory ${{ github.workspace }}
-            ${{ inputs.command }}
+          --volume $GITHUB_WORKSPACE:$GITHUB_WORKSPACE \
+          --workdir $GITHUB_WORKSPACE \
+          $INPUTS_TAG bash -c "
+            git config --global --add safe.directory $GITHUB_WORKSPACE
+            $INPUTS_COMMAND
           "
       shell: bash
